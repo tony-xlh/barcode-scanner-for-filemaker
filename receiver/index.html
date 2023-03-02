@@ -36,10 +36,10 @@
         <span id="status"></span>
       </div>
     </div>
+    <button onclick="connect();">Connect</button>
   </div>
   <script type="text/javascript">
   let client;
-  connect();
   function connect(){
     const clientId = 'mqttjs_' + Math.random().toString(16).substr(2, 8)
     let host;
