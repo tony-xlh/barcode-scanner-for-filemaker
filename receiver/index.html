@@ -111,6 +111,9 @@
           let obj = JSON.parse(xhr.responseText);
           let title = obj["title"];
           console.log(title);
+          if (FileMaker) {
+            FileMaker.PerformScript("Insert Book", title, isbn);
+          }
         } catch (error) {
           console.log(error);
         }
