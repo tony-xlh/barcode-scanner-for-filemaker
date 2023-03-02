@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Remote Barcode Scanner</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0" />
+    <link rel="stylesheet" type="text/css" href="toastify.min.css">
+    <script src="toastify-js.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mqtt/dist/mqtt.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dynamsoft-javascript-barcode@9.6.2/dist/dbr.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dynamsoft-camera-enhancer@3.2.0/dist/dce.js"></script>
+    <!--<script src="https://cdn.jsdelivr.net/npm/eruda"></script>
+    <script>eruda.init();</script>-->
+    <style>
+      .app {
+        position: fixed;
+        transform: translateX(-50%);
+        left: 50%;
+        text-align: center;
+      }
+
+      .mqtt-settings {
+        text-align: left;
+      }
+    </style>
+</head>
+<body>
+  <div class="app">
+    <h2>Remote Barcode Scanner</h2>
+    <div class="mqtt-settings">
+      <div>
+        <label>Topic:</label>
+        <input type="text" value="barcode" id="topic"/>
+      </div>
+      <div>
+        <label>Status:</label>
+        <span id="status"></span>
+      </div>
+    </div>
+  </div>
+  <script type="text/javascript">
+  let client;
+  connect();
+  function connect(){
+    const clientId = 'mqttjs_' + Math.random().toString(16).substr(2, 8)
+    let host;
+    if (window.location.protocol === "https:") {
+      host = 'wss://broker.emqx.io:8084/mqtt'
+    }else{
+      host = 'ws://broker.emqx.io:8083/mqtt'
+    }
+    
+    const options = {
+      keepalive: 60,
+      clientId: clientId,
+      protocolId: 'MQTT',
+      protocolVersion: 4,
+      clean: true,
+      reconnectPeriod: 1000,
+      connectTimeout: 30 * 1000,
+      will: {
+        topic: 'WillMsg',
+        payload: 'Connection Closed abnormally..!',
+        qos: 0,
+        retain: false
+      },
+    }
+
+    updateStatus('Connecting...');
+    client = mqtt.connect(host, options)
+
+    client.on('error', (err) => {
+      console.log('Connection error: ', err)
+      client.end()
+      updateStatus(err);
+    })
+
+    client.on('reconnect', () => {
+      updateStatus('Reconnecting...');
+    })
+
+    client.on('connect', () => {
+      console.log('Client connected:' + clientId)
+      updateStatus('Connected');
+      client.subscribe('barcode', function (err) {});
+    })
+
+    client.on('message', function (topic, message) {
+      // message is Buffer
+      console.log(message.toString())
+    })
+  }
+
+  function updateStatus(status){
+    document.getElementById('status').innerText = status;
+  }
+  </script>
+</body>
+</html>
