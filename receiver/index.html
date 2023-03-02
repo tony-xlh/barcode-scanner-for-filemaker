@@ -25,7 +25,7 @@
 </head>
 <body>
   <div class="app">
-    <h2>Remote Barcode Scanner</h2>
+    <div>Remote Barcode Scanner</div>
     <div class="mqtt-settings">
       <div>
         <label>Topic:</label>
@@ -111,8 +111,9 @@
           let obj = JSON.parse(xhr.responseText);
           let title = obj["title"];
           console.log(title);
+          let jsonString = JSON.stringify({title:title,isbn:isbn});
           if (FileMaker) {
-            FileMaker.PerformScript("Insert Book", title, isbn);
+            FileMaker.PerformScript("Insert Book", jsonString);
           }
         } catch (error) {
           console.log(error);
