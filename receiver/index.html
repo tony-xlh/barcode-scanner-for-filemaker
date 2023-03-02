@@ -41,6 +41,11 @@
   <script type="text/javascript">
   let client;
   function connect(){
+
+    if (client) {
+      client.end();
+    }
+
     const clientId = 'mqttjs_' + Math.random().toString(16).substr(2, 8)
     let host;
     if (window.location.protocol === "https:") {
@@ -66,11 +71,11 @@
     }
 
     updateStatus('Connecting...');
-    client = mqtt.connect(host, options)
+    client = mqtt.connect(host, options);
 
     client.on('error', (err) => {
-      console.log('Connection error: ', err)
-      client.end()
+      console.log('Connection error: ', err);
+      client.end();
       updateStatus(err);
     })
 
@@ -86,12 +91,32 @@
 
     client.on('message', function (topic, message) {
       // message is Buffer
-      console.log(message.toString())
+      let str = message.toString();
+      console.log(str);
+      queryByISBN(str);
     })
   }
 
   function updateStatus(status){
     document.getElementById('status').innerText = status;
+  }
+
+  function queryByISBN(isbn){
+    let URL = 'https://openlibrary.org/isbn/'+isbn+'.json';
+    let xhr = new XMLHttpRequest();
+    xhr.open('GET', URL);
+    xhr.onreadystatechange = function(){
+      if(xhr.readyState === 4){
+        try {
+          let obj = JSON.parse(xhr.responseText);
+          let title = obj["title"];
+          console.log(title);
+        } catch (error) {
+          console.log(error);
+        }
+      }
+    }
+    xhr.send();
   }
   </script>
 </body>
