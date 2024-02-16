@@ -232,9 +232,9 @@
     const clientId = 'mqttjs_' + Math.random().toString(16).substr(2, 8)
     let host;
     if (window.location.protocol === "https:") {
-      host = 'wss://broker.emqx.io:8084/mqtt'
+      host = 'wss://emqx-broker.onrender.com:8083/mqtt'
     }else{
-      host = 'ws://broker.emqx.io:8083/mqtt'
+      host = 'ws://emqx-broker.onrender.com:8083/mqtt'
     }
     
 
